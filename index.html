@@ -6,30 +6,14 @@
     <title>Remsima 3D Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary-color: #005596;
-            --bg-color: #ffffff;
-            --side-bg: #f8f9fa;
-        }
+        :root { --primary-color: #005596; --bg-color: #ffffff; --side-bg: #f8f9fa; }
+        body, html { margin: 0; padding: 0; height: 100%; font-family: 'Noto Sans KR', sans-serif; overflow: hidden; }
+        
+        .main-wrapper { display: flex; width: 100vw; height: 100vh; }
 
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            font-family: 'Noto Sans KR', sans-serif;
-            overflow: hidden; /* 스크롤 방지 및 전체화면 유지 */
-        }
-
-        /* 메인 컨테이너: 왼쪽(설명)과 오른쪽(3D) 분할 */
-        .main-wrapper {
-            display: flex;
-            width: 100vw;
-            height: 100vh;
-        }
-
-        /* 왼쪽 섹션 (설명창) */
+        /* 왼쪽 설명창 */
         .left-panel {
-            width: 40%; /* 왼쪽 40% 차지 */
+            width: 35%; 
             height: 100%;
             background-color: var(--side-bg);
             border-right: 1px solid #dee2e6;
@@ -37,171 +21,87 @@
             flex-direction: column;
             padding: 40px;
             box-sizing: border-box;
-            overflow-y: auto; /* 설명이 길어지면 이 부분만 스크롤 */
+            overflow-y: auto;
         }
 
-        /* 오른쪽 섹션 (3D 뷰어창) */
+        /* 오른쪽 3D창 */
         .right-panel {
-            width: 60%; /* 오른쪽 60% 차지 */
+            width: 65%;
             height: 100%;
-            background-color: #eee;
-            position: relative;
-        }
-
-        /* 제목 및 헤더 */
-        h1 { 
-            color: var(--primary-color); 
-            font-size: 1.8rem; 
-            margin: 0 0 10px 0;
-            border-bottom: 3px solid var(--primary-color);
-            display: inline-block;
-            padding-bottom: 5px;
-        }
-
-        .project-info {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 30px;
-        }
-
-        /* 목차(탭) 세로 정렬 */
-        .tab-menu {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            margin-bottom: 40px;
+            background-color: #eee;
         }
 
+        h1 { color: var(--primary-color); font-size: 1.6rem; margin: 0 0 10px 0; border-bottom: 3px solid var(--primary-color); display: inline-block; }
+        .tab-menu { display: flex; flex-direction: column; gap: 8px; margin: 25px 0; }
+        
         .tab-btn {
-            padding: 15px 20px;
-            border: 1px solid #ddd;
-            background: white;
-            text-align: left;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s ease;
+            padding: 14px 18px; border: 1px solid #ddd; background: white; text-align: left;
+            border-radius: 8px; cursor: pointer; font-weight: 500; transition: 0.2s;
         }
+        .tab-btn.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
 
-        .tab-btn:hover { background: #f1f1f1; }
-        .tab-btn.active {
-            background: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
+        .description-area { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); flex-grow: 1; }
+        .description-text { font-size: 0.95rem; line-height: 1.7; color: #444; white-space: pre-line; }
 
-        /* 상세 설명 영역 */
-        .description-area {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            flex-grow: 1;
-        }
-
-        .description-area h2 {
-            font-size: 1.2rem;
-            color: var(--primary-color);
-            margin-top: 0;
-        }
-
-        .description-text {
-            font-size: 0.95rem;
-            line-height: 1.8;
-            color: #444;
-            white-space: pre-line; /* 줄바꿈 유지 */
-        }
-
-        /* 3D 뷰어 실제 구현 */
-        .viewer-placeholder {
-            width: 100%;
-            height: 100%;
+        /* 오른쪽 상단 스타일 바 */
+        .model-style-bar {
+            height: 60px;
+            background: #ffffff;
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-style: italic;
-            color: #888;
+            padding: 0 25px;
+            gap: 12px;
+            border-bottom: 1px solid #ddd;
+            z-index: 10;
         }
+        .style-btn {
+            padding: 8px 16px; border: 1px solid #ccc; background: #fff;
+            border-radius: 20px; font-size: 0.85rem; cursor: pointer; transition: 0.2s;
+        }
+        .style-btn.active { background: #333; color: #fff; border-color: #333; }
 
-        footer {
-            margin-top: 20px;
-            font-size: 0.8rem;
-            color: #bbb;
-        }
+        model-viewer { width: 100%; flex-grow: 1; background: #f0f0f0; }
     </style>
 </head>
 <body>
 
 <div class="main-wrapper">
     <div class="left-panel">
-        <h1>Remsima Analysis Platform</h1>
-        <div class="project-info">바이오산업 실무 프로젝트: 3D Interaction Study</div>
+        <h1>Remsima Analysis</h1>
+        <p style="font-size:0.85rem; color:#888;">Antibody-Antigen Interaction Study</p>
 
         <div class="tab-menu">
-            <button class="tab-btn active" onclick="updateContent(0)">01. 렘시마(Infliximab) 항체 분석</button>
-            <button class="tab-btn" onclick="updateContent(1)">02. TNF-&alpha; 염증 단백질 구조</button>
-            <button class="tab-btn" onclick="updateContent(2)">03. 항체-항원 결합 시뮬레이션</button>
+            <button class="tab-btn active" onclick="updateContent(0)">01. 렘시마 항체 구조</button>
+            <button class="tab-btn" onclick="updateContent(1)">02. TNF-&alpha; 단백질 구조</button>
+            <button class="tab-btn" onclick="updateContent(2)">03. 복합체 결합 시뮬레이션</button>
         </div>
 
         <div class="description-area">
-            <h2 id="desc-title">렘시마(Infliximab) 항체 분석</h2>
-            <div id="desc-content" class="description-text">
-                여기에 렘시마에 대한 상세한 설명을 적으실 수 있습니다.
-                항체의 구조적 특징과 TNF-&alpha;를 찾아가는 메커니즘을 텍스트로 길게 나열해도 스크롤이 생기므로 안심하고 작성하세요.
-            </div>
+            <h3 id="desc-title" style="margin-top:0; color:var(--primary-color);">로딩 중...</h3>
+            <div id="desc-content" class="description-text">데이터를 불러오고 있습니다.</div>
         </div>
-
-        <footer>&copy; 2026 Bio-Industry Project. Data: RCSB PDB.</footer>
     </div>
 
     <div class="right-panel">
-        <model-viewer id="main-viewer" src="" auto-rotate camera-controls style="width: 100%; height: 100%; background: #eee;">
-            <div slot="poster" class="viewer-placeholder">왼쪽 메뉴를 선택하여 3D 모델을 로드하세요.</div>
+        <div class="model-style-bar">
+            <span style="font-weight:bold; font-size:0.9rem; margin-right:10px;">VIEW OPTION:</span>
+            <button class="style-btn active" onclick="changeStyle('surface')">덩어리(Surface)</button>
+            <button class="style-btn" onclick="changeStyle('stick')">분자(Stick/Ball)</button>
+        </div>
+        
+        <model-viewer id="main-viewer" src="" auto-rotate camera-controls shadow-intensity="1">
+            <div slot="poster" style="display:flex; align-items:center; justify-content:center; height:100%;">
+                <p>3D 모델 파일을 찾을 수 없습니다.</p>
+            </div>
         </model-viewer>
     </div>
 </div>
 
 <script>
     const contentData = [
-        {
-            title: "01. 렘시마(Infliximab) 항체 분석",
-            text: "렘시마는 TNF-α에 결합하는 chimeric monoclonal antibody입니다.\n\n가변 부위(Fv)는 마우스 유래, 불변 부위(Fc)는 인간 유래 단백질로 구성되어 있으며, 매우 높은 친화도로 항원과 결합합니다.\n\n이 페이지에서는 항체 단독 구조의 안정성과 가변 부위의 아미노산 서열 구조를 시각적으로 분석할 수 있습니다.",
-            model: "remsima_only.glb"
-        },
-        {
-            title: "02. TNF-&alpha; 염증 단백질 구조",
-            text: "TNF-α(Tumor Necrosis Factor-alpha)는 우리 몸에서 염증 반응을 매개하는 주요 단백질입니다.\n\n세 개의 동일한 분자가 뭉친 '트라이머(Trimer)' 형태를 띠고 있으며, 이 구조가 인체 내 수용체와 결합하면 염증 신호가 증폭됩니다.\n\n시뮬레이션에서는 각 서브유닛이 어떻게 맞물려 있는지 확인할 수 있습니다.",
-            model: "tnf_alpha.glb"
-        },
-        {
-            title: "03. 항체-항원 결합 시뮬레이션",
-            text: "이 모델은 렘시마와 TNF-α가 실제로 결합한 상태(PDB ID: 4G3Y)를 보여줍니다.\n\n핵심 결합 부위인 E-F Loop를 렘시마가 물리적으로 덮어버림으로써, TNF-α가 수용체와 결합하는 것을 차단(Neutralization)합니다.\n\n이것이 바이오시밀러 렘시마가 류마티스 관절염 등 자가면역 질환을 치료하는 핵심 원리입니다.",
-            model: "4G3Y.glb"
-        }
-    ];
-
-    function updateContent(index) {
-        // 제목과 본문 업데이트
-        document.getElementById('desc-title').innerHTML = contentData[index].title;
-        document.getElementById('desc-content').innerText = contentData[index].text;
-        
-        // 3D 모델 파일 경로 업데이트
-        document.getElementById('main-viewer').src = contentData[index].model;
-
-        // 버튼 활성화 스타일
-        const btns = document.getElementsByClassName('tab-btn');
-        for(let btn of btns) btn.classList.remove('active');
-        btns[index].classList.add('active');
-    }
-
-    // 초기 실행
-    updateContent(0);
-</script>
-
-<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
-
-</body>
-</html>
+        { title: "렘시마(Infliximab) 항체", text:
 
 
 
