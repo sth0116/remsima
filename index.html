@@ -3,105 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Remsima 3D Dashboard</title>
+    <title>Remsima 3D Analysis Platform</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary-color: #005596; --bg-color: #ffffff; --side-bg: #f8f9fa; }
         body, html { margin: 0; padding: 0; height: 100%; font-family: 'Noto Sans KR', sans-serif; overflow: hidden; }
-        
         .main-wrapper { display: flex; width: 100vw; height: 100vh; }
 
-        /* 왼쪽 설명창 */
-        .left-panel {
-            width: 35%; 
-            height: 100%;
-            background-color: var(--side-bg);
-            border-right: 1px solid #dee2e6;
-            display: flex;
-            flex-direction: column;
-            padding: 40px;
-            box-sizing: border-box;
-            overflow-y: auto;
-        }
-
-        /* 오른쪽 3D창 */
-        .right-panel {
-            width: 65%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            background-color: #eee;
-        }
-
-        h1 { color: var(--primary-color); font-size: 1.6rem; margin: 0 0 10px 0; border-bottom: 3px solid var(--primary-color); display: inline-block; }
-        .tab-menu { display: flex; flex-direction: column; gap: 8px; margin: 25px 0; }
+        /* 왼쪽 설명 패널 */
+        .left-panel { width: 35%; height: 100%; background: var(--side-bg); border-right: 1px solid #dee2e6; display: flex; flex-direction: column; padding: 30px; box-sizing: border-box; overflow-y: auto; }
         
-        .tab-btn {
-            padding: 14px 18px; border: 1px solid #ddd; background: white; text-align: left;
-            border-radius: 8px; cursor: pointer; font-weight: 500; transition: 0.2s;
-        }
-        .tab-btn.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+        /* 오른쪽 3D 패널 */
+        .right-panel { width: 65%; height: 100%; display: flex; flex-direction: column; background: #eee; }
 
-        .description-area { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); flex-grow: 1; }
-        .description-text { font-size: 0.95rem; line-height: 1.7; color: #444; white-space: pre-line; }
+        h1 { color: var(--primary-color); font-size: 1.5rem; margin-bottom: 5px; }
+        .tab-menu { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+        
+        /* 버튼 스타일 */
+        .tab-btn { padding: 15px; border: 1px solid #ddd; background: #fff; text-align: left; border-radius: 8px; cursor: pointer; font-size: 0.95rem; transition: 0.3s; }
+        .tab-btn.active { background: var(--primary-color); color: #fff; border-color: var(--primary-color); font-weight: bold; }
 
-        /* 오른쪽 상단 스타일 바 */
-        .model-style-bar {
-            height: 60px;
-            background: #ffffff;
-            display: flex;
-            align-items: center;
-            padding: 0 25px;
-            gap: 12px;
-            border-bottom: 1px solid #ddd;
-            z-index: 10;
-        }
-        .style-btn {
-            padding: 8px 16px; border: 1px solid #ccc; background: #fff;
-            border-radius: 20px; font-size: 0.85rem; cursor: pointer; transition: 0.2s;
-        }
+        /* 설명창 스타일 */
+        .description-area { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); flex-grow: 1; }
+        .description-text { font-size: 0.95rem; line-height: 1.8; color: #444; white-space: pre-line; }
+
+        /* 우측 상단 스타일 선택 바 */
+        .style-bar { height: 50px; background: #fff; border-bottom: 1px solid #ddd; display: flex; align-items: center; padding: 0 20px; gap: 10px; }
+        .style-btn { padding: 6px 14px; border: 1px solid #ccc; background: #fff; border-radius: 20px; cursor: pointer; font-size: 0.85rem; }
         .style-btn.active { background: #333; color: #fff; border-color: #333; }
 
-        model-viewer { width: 100%; flex-grow: 1; background: #f0f0f0; }
+        model-viewer { width: 100%; height: calc(100% - 50px); background: #f0f0f0; }
     </style>
 </head>
 <body>
 
 <div class="main-wrapper">
     <div class="left-panel">
-        <h1>Remsima Analysis</h1>
-        <p style="font-size:0.85rem; color:#888;">Antibody-Antigen Interaction Study</p>
+        <h1>Remsima Platform</h1>
+        <p style="font-size: 0.85rem; color: #777; margin-bottom: 20px;">바이오산업 실무: 3D 모델 분석</p>
 
         <div class="tab-menu">
-            <button class="tab-btn active" onclick="updateContent(0)">01. 렘시마 항체 구조</button>
-            <button class="tab-btn" onclick="updateContent(1)">02. TNF-&alpha; 단백질 구조</button>
-            <button class="tab-btn" onclick="updateContent(2)">03. 복합체 결합 시뮬레이션</button>
+            <button class="tab-btn active" onclick="changeCategory(0)">01. 렘시마 항체 구조</button>
+            <button class="tab-btn" onclick="changeCategory(1)">02. TNF-&alpha; 단백질 구조</button>
+            <button class="tab-btn" onclick="changeCategory(2)">03. 복합체 결합 시뮬레이션</button>
         </div>
 
         <div class="description-area">
-            <h3 id="desc-title" style="margin-top:0; color:var(--primary-color);">로딩 중...</h3>
-            <div id="desc-content" class="description-text">데이터를 불러오고 있습니다.</div>
+            <h3 id="desc-title" style="margin-top:0; color:var(--primary-color);">데이터 로딩 중...</h3>
+            <p id="desc-content" class="description-text">버튼을 클릭하여 데이터를 확인하세요.</p>
         </div>
     </div>
 
     <div class="right-panel">
-        <div class="model-style-bar">
-            <span style="font-weight:bold; font-size:0.9rem; margin-right:10px;">VIEW OPTION:</span>
+        <div class="style-bar">
+            <span style="font-weight:bold; font-size:0.85rem;">VIEW:</span>
             <button class="style-btn active" onclick="changeStyle('surface')">덩어리(Surface)</button>
-            <button class="style-btn" onclick="changeStyle('stick')">분자(Stick/Ball)</button>
+            <button class="style-btn" onclick="changeStyle('stick')">분자(Stick)</button>
         </div>
-        
         <model-viewer id="main-viewer" src="" auto-rotate camera-controls shadow-intensity="1">
-            <div slot="poster" style="display:flex; align-items:center; justify-content:center; height:100%;">
-                <p>3D 모델 파일을 찾을 수 없습니다.</p>
-            </div>
+            <div slot="poster" style="padding: 20px; text-align: center;">3D 모델 로딩 대기 중...</div>
         </model-viewer>
     </div>
 </div>
 
 <script>
+    // 1. 데이터 정의 (이 부분을 자바스크립트가 읽어야 함)
     const contentData = [
-        { title: "렘시마(Infliximab) 항체", text:
+        {
+            title: "01. 렘시마(Infliximab) 항체",
+            text: "이 모델은 셀트리온 렘시마 항체의 단독 구조를 보여줍니다.\n\nSurface 모드에서는 항체의 전체적인 부피감과 표면 전하 분포를 확인하기 좋으며, Stick 모드에서는 아미노산 서열 구조를 상세히 관찰할 수 있습니다.",
+            surface: "remsima_surface.glb",
+            stick: "remsima_stick.glb"
+        },
+        {
+            title: "02. TNF-&alpha; 염증 단백질",
+            text: "자가면역 질환을 일으키는 주요 항원인 TNF-α입니다.\n\n세 개의 동일한 단백질이 결합한 Trimer 구조를 가지고 있으며, 렘시마가 결합하여 차단해야 할 타겟 부위를 확인하세요.",
+            surface: "tnf_surface.glb",
+            stick: "tnf_stick.glb"
+        },
+        {
+            title: "03. 복합체 결합 (PDB 4G3Y)",
+            text: "렘시마와 TNF-α가 결합한 최종 상태입니다.\n\n어떤 아미노산 잔기가 서로 상호작용하는지 Stick 모드에서 확인하고, 항체가 항원을 어떻게 물리적으로 덮는지 Surface 모드에서 분석하십시오.",
+            surface: "4G3Y_surface.glb",
+            stick: "4G3Y_stick.glb"
+        }
+    ];
+
+    let currentIdx = 0; // 현재 선택된 단계 (0, 1, 2)
+    let currentStyle = 'surface'; // 현재 선택된 스타일 (surface, stick)
+
+    // 2. 화면 업데이트 함수
+    function updateDisplay() {
+        const item = contentData[currentIdx];
+        
+        // 텍스트 교체
+        document.getElementById('desc-title').innerText = item.title;
+        document.getElementById('desc-content').innerText = item.text;
+        
+        // 3D 모델 교체
+        const viewer = document.getElementById('main-viewer');
+        viewer.src = item[currentStyle]; // surface 또는 stick 파일 로드
+        
+        // 버튼 스타일 업데이트 (왼쪽 메뉴)
+        const tabBtns = document.getElementsByClassName('tab-btn');
+        for(let btn of tabBtns) btn.classList.remove('active');
+        tabBtns[currentIdx].classList.add('active');
+
+        // 버튼 스타일 업데이트 (상단 뷰 옵션)
+        const styleBtns = document.getElementsByClassName('style-btn');
+        styleBtns[0].classList.toggle('active', currentStyle === 'surface');
+        styleBtns[1].classList.toggle('active', currentStyle === 'stick');
+    }
+
+    // 3. 카테고리 변경 함수
+    function changeCategory(idx) {
+        currentIdx = idx;
+        updateDisplay();
+    }
+
+    // 4. 스타일 변경 함수
+    function changeStyle(style) {
+        currentStyle = style;
+        updateDisplay();
+    }
+
+    // 5. 페이지 시작하자마자 첫 번째 데이터 강제 로드
+    window.onload = function() {
+        updateDisplay();
+    };
+</script>
+
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+
+</body>
+</html>
 
 
 
